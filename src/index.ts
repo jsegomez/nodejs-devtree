@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
     console.log(`📝 Entorno: ${process.env.NODE_ENV || 'development'}`);
 });
 

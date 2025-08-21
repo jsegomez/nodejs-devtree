@@ -3,15 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
-  "author": "Josué Eliezer Gómez Soto",
-  "type": "commonjs",
-  "main": "index.js",
+  "author": "Josué Eliezer Gómez Soto",  
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node index.js",
-    "start:dev": "node --watch index.js",
-    "test": "test"
+    "start": "node dist/index.js",
+    "start:dev": "nodemon  src/index.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
