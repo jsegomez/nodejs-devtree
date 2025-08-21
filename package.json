@@ -1,0 +1,17 @@
+{
+  "name": "devtree",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Josué Eliezer Gómez Soto",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "start:dev": "node --watch index.js",
+    "test": "test"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
