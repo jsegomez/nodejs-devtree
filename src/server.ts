@@ -1,14 +1,16 @@
+import 'dotenv/config';
+import authRoutes from './routes/auth.routes';
+import database from './config/database';
 import express from 'express';
 
 const app = express();
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.json({ 
-        message: 'Servidor DevTree funcionando correctamente',
-        timestamp: new Date().toISOString()
-    });
-});
+// Routes
+app.use('/auth', authRoutes);
+
+// Database
+database();
 
 export default app;
