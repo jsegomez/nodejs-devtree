@@ -1,10 +1,16 @@
 import User, { IUser } from "../models/User";
-import { ConflictException } from "../utils/exceptions/exceptions";
+import { ConflictException, NotFoundException } from "../utils/exceptions/exceptions";
 
 export class UserService {
   async findAllUsers(): Promise<IUser[]> {
     const users = await User.find();
     return users;
+  }
+
+  async findUserById(id: string): Promise<IUser> {
+    const user = await User.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 
   async createUser(data: IUser): Promise<IUser> {
@@ -17,7 +23,7 @@ export class UserService {
 
   async findUserByEmail(email: string): Promise<IUser> {
     const user = await User.findOne({ email });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundException('User not found');
     return user;
   }
 }
