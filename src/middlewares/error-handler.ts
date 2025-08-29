@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { HttpException } from '../utils/exceptions/exceptions';
 
-import { validationResult } from 'express-validator';
+import { validationResult, ValidationError } from 'express-validator';
 
 export const errorHandler = (
   error: Error,
@@ -13,8 +13,11 @@ export const errorHandler = (
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
       statusCode: 400,      
-      error: 'ValidationError',
-      errors: validationErrors.array()
+      error: 'ValidationError',      
+      errors: validationErrors.array().map((err: ValidationError) => ({
+        message: err.msg,
+        field: err.type === 'field' ? err.path : 'unknown'
+      }))
     });
   }
 
