@@ -1,31 +1,20 @@
 import { Router } from 'express';
-import { UserService } from '../services/user-service';
 
-import { BadRequestException } from '../utils/exceptions/exceptions';
+import { body } from 'express-validator';
+import { createUser } from '../handler/user-handler';
 
 
 const authRoutes = Router();
-const userService = new UserService();
 
-authRoutes.post('/login', (req, res) => {
-    res.json(req.body);
-});
-
-authRoutes.get('/all', async(req, res) => {
-   const users = await userService.findAllUsers();
-   res.json(users);
-});
-
-authRoutes.get('/get-user', async(req, res) => {
-    const { id } = req.query;
-    if (!id) throw new BadRequestException('Id is required');
-    const user = await userService.findUserById(id as string);
-    res.json(user);
-});
-
-authRoutes.post('/register', async(req, res) => {
-    const newUser = await userService.createUser(req.body);
-    res.json(newUser);
-});
+authRoutes.post('/register', 
+    [
+        body('email').isEmail().withMessage('Invalid email'),
+        body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+        body('name').isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
+        body('lastname').isLength({ min: 3 }).withMessage('Lastname must be at least 3 characters long'),
+        body('username').isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
+    ],
+    createUser
+);
 
 export default authRoutes;
