@@ -11,7 +11,7 @@ authRoutes.post('/register',
         body('email').isEmail().withMessage('Invalid email'),
         body('password')            
             .isStrongPassword({
-                minLength: 6,
+                minLength: 8,
                 minLowercase: 1,
                 minUppercase: 1,
                 minNumbers: 1,
@@ -27,7 +27,7 @@ authRoutes.post('/register',
 authRoutes.post('/login', 
     [
         body('email').isEmail().withMessage('Invalid email'),
-        body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+        body('password').isLength({ min: 8 }).withMessage('Invalid password'),
     ],
     loginUser
 );
