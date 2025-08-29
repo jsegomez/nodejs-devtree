@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { body } from 'express-validator';
-import { createUser } from '../handler/user-handler';
+import { createUser, loginUser } from '../handler/user-handler';
 
 
 const authRoutes = Router();
@@ -22,6 +22,14 @@ authRoutes.post('/register',
         body('username').isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
     ],
     createUser
+);
+
+authRoutes.post('/login', 
+    [
+        body('email').isEmail().withMessage('Invalid email'),
+        body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    ],
+    loginUser
 );
 
 export default authRoutes;
