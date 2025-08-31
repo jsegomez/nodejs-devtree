@@ -1,18 +1,24 @@
+import express from 'express';
+import cors from 'cors';
+
 import 'dotenv/config';
+import { errorHandler } from './middlewares/error-handler';
 import authRoutes from './routes/auth.routes';
 import database from './config/database';
-import express from 'express';
-import { errorHandler } from './middlewares/error-handler';
+import { corsConfig } from './config/cors';
 
 const app = express();
 
 app.use(express.json());
 
-// Routes
-app.use('/auth', authRoutes);
-
 // Database
 database();
+
+// cors 
+app.use(cors(corsConfig))
+
+// Routes
+app.use('/auth', authRoutes);
 
 // Middlewares
 app.use(errorHandler);
