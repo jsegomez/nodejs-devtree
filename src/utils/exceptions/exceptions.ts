@@ -39,3 +39,15 @@ export class InternalServerErrorException extends HttpException {
     super(message, 500);
   }
 }
+
+export class TokenExpiredException extends HttpException {
+  constructor(message: string = 'Token expirado') {
+    super(message, 401);
+  }
+}
+
+export class InvalidTokenException extends HttpException {
+  constructor(message: string = 'Token inválido') {
+    super(message, 401);
+  }
+}

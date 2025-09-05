@@ -8,7 +8,7 @@ import { generateToken, verifyToken } from "../utils/jtw";
 export const createUser = async(req: Request, res: Response):Promise<void> => {
   const { email, username, password } = req.body;
 
-  const existingUser = await User.findOne({ $or: [{ email }, { username }] });    
+  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) throw new ConflictException('Email or username already exists');
 
   const hashedPassword = await hashPassword(password);
@@ -19,7 +19,7 @@ export const createUser = async(req: Request, res: Response):Promise<void> => {
 export const loginUser = async(req: Request, res: Response):Promise<void> => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select('+password');
   if (!user) throw new UnauthorizedException('User or password incorrect');
 
   const isPasswordValid = await comparePassword(password, user.password);
@@ -34,7 +34,7 @@ export const getDataUser = async(req: Request, res: Response) => {
   if(!authorization) throw new UnauthorizedException('No credencials');
 
   const token = authorization.replace('Bearer ', '');
-  const { id } = verifyToken(token);
+  const { id } = verifyToken(token);  
   const user = await User.findById(id);
 
   if(!user) throw new NotFoundException('User not found');
