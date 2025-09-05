@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { body } from 'express-validator';
-import { createUser, loginUser } from '../handler/user-handler';
+import { createUser, loginUser, getDataUser } from '../handler/user-handler';
 
 
 const authRoutes = Router();
@@ -31,5 +31,11 @@ authRoutes.post('/login',
     ],
     loginUser
 );
+
+authRoutes.get('/get-user',
+    getDataUser
+)
+
+
 
 export default authRoutes;
