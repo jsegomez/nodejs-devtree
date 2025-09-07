@@ -2,8 +2,8 @@ import { Response, Request } from "express";
 
 import User from "../models/User";
 import { comparePassword, hashPassword } from "../utils/auth";
-import { ConflictException, NotFoundException, UnauthorizedException } from "../utils/exceptions/exceptions";
-import { generateToken, verifyToken } from "../utils/jtw";
+import { ConflictException, UnauthorizedException } from "../utils/exceptions/exceptions";
+import { generateToken } from "../utils/jtw";
 
 export const createUser = async(req: Request, res: Response):Promise<void> => {
   const { email, username, password } = req.body;
@@ -29,15 +29,8 @@ export const loginUser = async(req: Request, res: Response):Promise<void> => {
   res.status(200).json({ message: 'Login successful', token });
 }
 
-export const getDataUser = async(req: Request, res: Response) => {
-  const { authorization } = req.headers;
-  if(!authorization) throw new UnauthorizedException('No credencials');
-
-  const token = authorization.replace('Bearer ', '');
-  const { id } = verifyToken(token);  
-  const user = await User.findById(id);
-
-  if(!user) throw new NotFoundException('User not found');
+export const getDataUser = async(req: Request, res: Response) => {  
+  const user = req.user;  
 
   res.status(200).json({ user });
 }

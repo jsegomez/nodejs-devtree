@@ -28,8 +28,7 @@ export const errorHandler = (
       error: error.name
     });
   }
-  
-  console.error(error);
+    
   return res.status(500).json({
     statusCode: 500,
     message: 'Error interno del servidor',

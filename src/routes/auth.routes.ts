@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { body } from 'express-validator';
 import { createUser, loginUser, getDataUser } from '../handler/user-handler';
+import { authMiddleware } from '../middlewares/auth';
 
 
 const authRoutes = Router();
@@ -33,6 +34,7 @@ authRoutes.post('/login',
 );
 
 authRoutes.get('/get-user',
+    [ authMiddleware ],
     getDataUser
 )
 
