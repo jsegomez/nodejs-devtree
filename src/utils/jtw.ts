@@ -3,7 +3,7 @@ import { InvalidTokenException, TokenExpiredException } from "./exceptions/excep
 
 export const generateToken = (id: JwtPayload):string => {
     if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is not defined');
-    return jwt.sign({ id }, process.env.JWT_SECRET!, { expiresIn: '180s' });
+    return jwt.sign({ id }, process.env.JWT_SECRET!, { expiresIn: '1800s' });
 }
 
 export const verifyToken = (token: string):JwtPayload => {

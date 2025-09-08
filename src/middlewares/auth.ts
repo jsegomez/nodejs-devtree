@@ -1,5 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { NotFoundException, TokenExpiredException, UnauthorizedException } from "../utils/exceptions/exceptions";
+import {
+    NotFoundException,
+    TokenExpiredException,
+    UnauthorizedException
+} from "../utils/exceptions/exceptions";
 import { verifyToken } from "../utils/jtw";
 import User, { IUser } from "../models/User";
 
@@ -34,10 +38,8 @@ export const authMiddleware = async(req: Request, _res: Response, next: NextFunc
             throw error;
         }
 
-        if(error instanceof TokenExpiredException) {
-            throw new UnauthorizedException('Token expired');
-        }
-        
+        if(error instanceof TokenExpiredException) throw new UnauthorizedException('Token expired');        
         throw new UnauthorizedException('Error de autenticación');
     }
 }
+

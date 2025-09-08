@@ -6,6 +6,7 @@ export interface IUser {
   username: string;
   email: string;
   password: string;  
+  description: string;
   createAt: Date;
   updatedAt: Date;
 }
@@ -48,8 +49,19 @@ const userSchema = new Schema<IUser>({
         minlength: 8,
         maxlength: 100,
         select: false
+    },
+    description: {
+        type: String,
+        required: false,
+        minlength: 10,
+        maxlength: 1000,
+        trim: true,
+        default: ''
     }
-}, { timestamps: true });
+}, {
+    timestamps: true,
+    versionKey: false,
+});
 
 const User = mongoose.model<IUser>("User", userSchema);
 
