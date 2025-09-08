@@ -1,19 +1,23 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 
 import User from "../models/User";
 import { comparePassword, hashPassword } from "../utils/auth";
 import { ConflictException, UnauthorizedException } from "../utils/exceptions/exceptions";
 import { generateToken } from "../utils/jtw";
 
-export const createUser = async(req: Request, res: Response):Promise<void> => {
-  const { email, username, password } = req.body;
+export const createUser = async(req: Request, res: Response, next: NextFunction):Promise<void> => {
+  try {
+    const { email, username, password } = req.body;
 
-  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-  if (existingUser) throw new ConflictException('Email or username already exists');
-
-  const hashedPassword = await hashPassword(password);
-  const newUser = await User.create({...req.body, password: hashedPassword});
-  res.status(201).json(newUser);
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) throw new ConflictException('Email or username already exists');
+  
+    const hashedPassword = await hashPassword(password);
+    const newUser = await User.create({...req.body, password: hashedPassword});
+    res.status(201).json(newUser);
+  } catch (error) {    
+    next(error);    
+  }
 }
 
 export const loginUser = async(req: Request, res: Response):Promise<void> => {

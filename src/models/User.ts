@@ -5,7 +5,7 @@ export interface IUser {
   lastname: string;
   username: string;
   email: string;
-  password: string;  
+  password: string;    
   description: string;
   createAt: Date;
   updatedAt: Date;
@@ -52,11 +52,10 @@ const userSchema = new Schema<IUser>({
     },
     description: {
         type: String,
-        required: false,
-        minlength: 10,
+        required: false,        
         maxlength: 1000,
-        trim: true,
-        default: ''
+        trim: true, 
+        default: ''       
     }
 }, {
     timestamps: true,
