@@ -1,9 +1,12 @@
 import { Response, Request, NextFunction } from "express";
+import formidable from 'formidable';
+import { v4 as uuidv4 } from 'uuid';
 
-import User, { IUser } from "../models/User";
+import User from "../models/User";
 import { comparePassword, hashPassword } from "../utils/auth";
-import { ConflictException, UnauthorizedException } from "../utils/exceptions/exceptions";
+import { BadRequestException, ConflictException, ImageUploadException, UnauthorizedException } from "../utils/exceptions/exceptions";
 import { generateToken } from "../utils/jtw";
+import cloudinary from "../config/cloudinary";
 
 export const createUser = async(req: Request, res: Response, next: NextFunction):Promise<void> => {
   try {
@@ -52,6 +55,28 @@ export const updateUser = async(req: Request, res: Response, next: NextFunction)
     
     const updatedUser = await user.save();
     res.status(200).json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const uploadImage = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user!;
+    const form = formidable({ multiples: false });    
+
+    form.parse(req, async(err, fields, files) => {
+      if (err) next(err);
+
+      const file = files?.image?.[0]?.filepath;    
+      if(!file) return next(new BadRequestException('Image is required'));  
+
+      const imagen = await cloudinary.uploader.upload(file, { public_id: uuidv4() });
+      user.image = imagen.secure_url;
+      await user.save();
+
+      res.status(200).json(user);
+    });
   } catch (error) {
     next(error);
   }

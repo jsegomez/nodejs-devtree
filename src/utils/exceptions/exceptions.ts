@@ -51,3 +51,9 @@ export class InvalidTokenException extends HttpException {
     super(message, 401);
   }
 }
+
+export class ImageUploadException extends HttpException {
+  constructor(message: string = 'Error al cargar la imagen') {
+    super(message, 422);
+  }
+}
