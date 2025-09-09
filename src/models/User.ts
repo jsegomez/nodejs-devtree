@@ -1,17 +1,19 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-export interface IUser {    
-  name: string;
-  lastname: string;
-  username: string;
-  email: string;
-  password: string;    
-  description: string;
-  createAt: Date;
-  updatedAt: Date;
-}
+export interface IUserData {    
+    name: string;
+    lastname: string;
+    username: string;
+    email: string;
+    password: string;    
+    description: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }
+  
+export interface IUser extends IUserData, Document {}
 
-const userSchema = new Schema<IUser>({
+const userSchema = new Schema<IUserData>({
     name: {
         type: String,
         required: true,
@@ -62,6 +64,6 @@ const userSchema = new Schema<IUser>({
     versionKey: false,
 });
 
-const User = mongoose.model<IUser>("User", userSchema);
+const User = mongoose.model<IUserData>("User", userSchema);
 
 export default User;

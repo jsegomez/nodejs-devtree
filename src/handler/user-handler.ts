@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
 
-import User from "../models/User";
+import User, { IUser } from "../models/User";
 import { comparePassword, hashPassword } from "../utils/auth";
 import { ConflictException, UnauthorizedException } from "../utils/exceptions/exceptions";
 import { generateToken } from "../utils/jtw";
@@ -29,12 +29,30 @@ export const loginUser = async(req: Request, res: Response):Promise<void> => {
   const isPasswordValid = await comparePassword(password, user.password);
   if (!isPasswordValid) throw new UnauthorizedException('User or password incorrect');
 
-  const token = generateToken(user._id);  
+  const token = generateToken(user._id.toString());  
   res.status(200).json({ message: 'Login successful', token });
 }
 
 export const getDataUser = async(req: Request, res: Response) => {  
   const user = req.user;  
 
-  res.status(200).json({ user });
+  res.status(200).json(user);
+}
+
+export const updateUser = async(req: Request, res: Response, next: NextFunction) => {    
+  try {        
+    const { username, description } = req.body;    
+    const user = req.user!;
+
+    user.username = username;    
+    user.description = description;
+
+    const findUsername = await User.findOne({ username });
+    if(findUsername && findUsername?.id !== user.id) throw new ConflictException('Username already exists');
+    
+    const updatedUser = await user.save();
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
 }

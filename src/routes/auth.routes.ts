@@ -1,9 +1,8 @@
 import { Router } from 'express';
 
 import { body } from 'express-validator';
-import { createUser, loginUser, getDataUser } from '../handler/user-handler';
+import { createUser, loginUser, getDataUser, updateUser } from '../handler/user-handler';
 import { authMiddleware } from '../middlewares/auth';
-
 
 const authRoutes = Router();
 
@@ -38,6 +37,13 @@ authRoutes.get('/get-user',
     getDataUser
 )
 
-
+authRoutes.patch('/update-user',
+    authMiddleware,
+    [         
+        body('username').isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
+        body('description').isLength({ min: 3 }).withMessage('Description must be at least 3 characters long'),
+    ],
+    updateUser
+)
 
 export default authRoutes;
