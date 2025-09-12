@@ -42,7 +42,7 @@ export class InternalServerErrorException extends HttpException {
 
 export class TokenExpiredException extends HttpException {
   constructor(message: string = 'Token expirado') {
-    super(message, 401);
+    super(message, 498);
   }
 }
 

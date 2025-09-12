@@ -1,12 +1,13 @@
 import { Response, Request, NextFunction } from "express";
-import formidable from 'formidable';
 import { v4 as uuidv4 } from 'uuid';
+import formidable from 'formidable';
+import cloudinary from "../config/cloudinary";
 
 import User from "../models/User";
 import { comparePassword, hashPassword } from "../utils/auth";
 import { BadRequestException, ConflictException, ImageUploadException, UnauthorizedException } from "../utils/exceptions/exceptions";
 import { generateToken } from "../utils/jtw";
-import cloudinary from "../config/cloudinary";
+
 
 export const createUser = async(req: Request, res: Response, next: NextFunction):Promise<void> => {
   try {
@@ -62,7 +63,7 @@ export const updateUser = async(req: Request, res: Response, next: NextFunction)
 
 export const uploadImage = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = req.user!;
+    const user = req.user!; // Esto se optiene de la authMiddleware, se agrega en el request.user
     const form = formidable({ multiples: false });    
 
     form.parse(req, async(err, fields, files) => {
@@ -81,3 +82,4 @@ export const uploadImage = async(req: Request, res: Response, next: NextFunction
     next(error);
   }
 }
+

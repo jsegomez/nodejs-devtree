@@ -33,12 +33,11 @@ export const authMiddleware = async(req: Request, _res: Response, next: NextFunc
         
         next();
     } catch (error) {        
-        if (error instanceof UnauthorizedException || 
-            error instanceof NotFoundException) {
+        if (error instanceof UnauthorizedException || error instanceof NotFoundException) {
             throw error;
         }
 
-        if(error instanceof TokenExpiredException) throw new UnauthorizedException('Token expired');        
+        if(error instanceof TokenExpiredException) throw new TokenExpiredException('Token expired');        
         throw new UnauthorizedException('Error de autenticación');
     }
 }
