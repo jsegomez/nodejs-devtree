@@ -45,11 +45,12 @@ export const getDataUser = async(req: Request, res: Response) => {
 
 export const updateUser = async(req: Request, res: Response, next: NextFunction) => {    
   try {        
-    const { username, description } = req.body;    
+    const { username, description, links } = req.body;    
     const user = req.user!;
 
     user.username = username;    
     user.description = description;
+    user.links = links;
 
     const findUsername = await User.findOne({ username });
     if(findUsername && findUsername?.id !== user.id) throw new ConflictException('Username already exists');
@@ -63,7 +64,7 @@ export const updateUser = async(req: Request, res: Response, next: NextFunction)
 
 export const uploadImage = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = req.user!; // Esto se optiene de la authMiddleware, se agrega en el request.user
+    const user = req.user!;
     const form = formidable({ multiples: false });    
 
     form.parse(req, async(err, fields, files) => {

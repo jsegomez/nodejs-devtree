@@ -8,6 +8,7 @@ export interface IUserData {
     password: string;    
     description: string;
     image: string;
+    links: string;
     createdAt: Date;
     updatedAt: Date;
   }
@@ -64,6 +65,11 @@ const userSchema = new Schema<IUserData>({
         type: String,
         required: false,
         default: ''
+    },
+    links: {
+        type: String,
+        required: false,
+        default: '[]'        
     }
 }, {
     timestamps: true,
