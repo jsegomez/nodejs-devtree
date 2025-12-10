@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
         GITHUB_SSH = credentials('github-ssh-jenkins')
@@ -8,6 +12,12 @@ pipeline {
     }
 
     stages {
+
+        stage('Prepare Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
 
         stage('Checkout App Code') {
             steps {
@@ -63,7 +73,7 @@ pipeline {
             steps {
                 dir('manifests/demo-app') {
                     script {
-                        sh "sed -i \"s|image: jsegomezz/demo-app:.*|image: jsegomezz/demo-app:${VERSION_TAG}|g\" deployment.yaml"
+                        sh "sed -i \"s|image: jsegomez/demo-app:.*|image: jsegomez/demo-app:${VERSION_TAG}|g\" deployment.yaml"
                     }
                 }
             }
@@ -73,11 +83,11 @@ pipeline {
             steps {
                 dir('manifests') {
                     sshagent(['github-ssh-jenkins']) {
-                        sh '''
+                        sh """
                             git add .
-                            git commit -m "Update image to ${IMAGE_NAME}:${VERSION_TAG}"
+                            git commit -m "Update image to ${IMAGE_NAME}:${VERSION_TAG}" || true
                             git push
-                        '''
+                        """
                     }
                 }
             }
