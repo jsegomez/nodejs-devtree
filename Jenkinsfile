@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REGISTRY = "jsegomezz"
+        REGISTRY = "jsegomez"
         IMAGE = "nodejs-devtree"
         COMMIT = "${env.GIT_COMMIT[0..6]}"  // Tag con primeros 7 caracteres
     }
