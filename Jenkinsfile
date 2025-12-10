@@ -2,90 +2,108 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_USER = 'jsegomez'
-        IMAGE_NAME = 'nodejs-devtree'
-        VERSION_TAG = "development-${BUILD_NUMBER}"
-        LATEST_TAG = "latest"
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        GITHUB_SSH = credentials('github-ssh-jenkins')
+        IMAGE_NAME = "jsegomez/demo-app"
     }
 
     stages {
 
-        stage('Checkout App Repo') {
+        stage('Checkout App Code') {
             steps {
-                git branch: 'development',
-                    credentialsId: 'github-ssh-jenkins',
-                    url: 'git@github.com:jsegomez/nodejs-devtree.git'
-            }
-        }
-
-        stage('Install & Test') {
-            steps {
-                sh '''
-                npm install
-                npm test || true
-                '''
-            }
-        }
-
-        stage('Build Docker Images') {
-            steps {
-                sh """
-                docker build -t $DOCKERHUB_USER/$IMAGE_NAME:$LATEST_TAG .
-                docker build -t $DOCKERHUB_USER/$IMAGE_NAME:$VERSION_TAG .
-                """
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    passwordVariable: 'DOCKER_PASS',
-                    usernameVariable: 'DOCKER_USER'
-                )]) {
-                    sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                    docker push $DOCKER_USER/$IMAGE_NAME:$LATEST_TAG
-                    docker push $DOCKER_USER/$IMAGE_NAME:$VERSION_TAG
-                    docker logout
-                    '''
+                sshagent(['github-ssh-jenkins']) {
+                    sh 'git clone -b development git@github.com:jsegomez/nodejs-devtree.git .'
                 }
             }
         }
 
-        stage('Update Manifests Repo') {
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'npm test || true'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    VERSION_TAG = "build-${env.BUILD_NUMBER}"
+                    sh "docker build -t ${IMAGE_NAME}:${VERSION_TAG} ."
+                    sh "docker tag ${IMAGE_NAME}:${VERSION_TAG} ${IMAGE_NAME}:latest"
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh 'echo "$DOCKERHUB_CREDENTIALS_PSW" | docker login -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin'
+                script {
+                    sh "docker push ${IMAGE_NAME}:${VERSION_TAG}"
+                    sh "docker push ${IMAGE_NAME}:latest"
+                }
+            }
+        }
+
+        stage('Checkout Manifests Repo') {
             steps {
                 dir('manifests') {
-                    sh '''
-                    if [ ! -d devops-nodejs-devtree ]; then
-                        git clone git@github.com:jsegomez/devops-nodejs-devtree.git
-                    fi
-                    cd devops-nodejs-devtree
+                    sshagent(['github-ssh-jenkins']) {
+                        sh 'git clone git@github.com:jsegomez/devops-nodejs-devtree.git .'
+                    }
+                }
+            }
+        }
 
-                    sed -i "s|jsegomez/nodejs-devtree:.*|jsegomez/nodejs-devtree:${VERSION_TAG}|g" demo-app/deployment.yaml
+        stage('Update Deployment Image Tag') {
+            steps {
+                dir('manifests/demo-app') {
+                    script {
+                        sh "sed -i \"s|image: jsegomezz/demo-app:.*|image: jsegomezz/demo-app:${VERSION_TAG}|g\" deployment.yaml"
+                    }
+                }
+            }
+        }
 
-                    git config user.email "jenkins@ci.local"
-                    git config user.name "Jenkins CI"
-
-                    git add .
-                    git commit -m "Update image tag to ${VERSION_TAG}"
-                    git push
-                    '''
+        stage('Commit & Push Manifests') {
+            steps {
+                dir('manifests') {
+                    sshagent(['github-ssh-jenkins']) {
+                        sh '''
+                            git add .
+                            git commit -m "Update image to ${IMAGE_NAME}:${VERSION_TAG}"
+                            git push
+                        '''
+                    }
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh '''
-                kubectl apply -f manifests/devops-nodejs-devtree/demo-app/namespace.yaml
-                kubectl apply -f manifests/devops-nodejs-devtree/demo-app/deployment.yaml
-                kubectl apply -f manifests/devops-nodejs-devtree/demo-app/service.yaml
-                kubectl apply -f manifests/devops-nodejs-devtree/demo-app/hpa.yaml
-
-                kubectl rollout status deployment demo-app -n demo-app
-                '''
+                dir('manifests/demo-app') {
+                    sh 'kubectl apply -f namespace.yaml || true'
+                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f service.yaml'
+                    sh 'kubectl apply -f hpa.yaml'
+                }
             }
+        }
+
+        stage('Rollout Status') {
+            steps {
+                sh 'kubectl rollout status deployment/demo-app -n demo-app'
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker logout'
         }
     }
 }
