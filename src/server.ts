@@ -21,6 +21,9 @@ app.use(cors(corsConfig))
 // Routes
 app.use('/auth', authRoutes);
 app.use('/public', publicRoutes);
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 // Middlewares
 app.use(errorHandler);
